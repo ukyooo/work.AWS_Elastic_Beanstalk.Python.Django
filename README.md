@@ -2,14 +2,6 @@ AWS Elastic Beanstalk を Python (Django) で動かしてみるワークショ�
 =======================================================================
 
 
-# hoge ふが
-## hoge ふが
-### hoge ふが
-#### hoge ふが
-##### hoge ふが
-###### hoge ふが
-####### hoge ふが
-
 
 ### 目的
 
@@ -22,11 +14,6 @@ AWS Elastic Beanstalk を Python (Django) で動かしてみるワークショ�
 * AWS CLI (AWS-ElasticBeanstalk-CLI / ec2-api-tools) を少し知る
 
 
-
-
-
-
-
 ----
 
 ### 事前準備
@@ -37,7 +24,7 @@ AWS Elastic Beanstalk を Python (Django) で動かしてみるワークショ�
 
 * 無い場合は報告して頂ければ EC2 の環境を用意するので ssh 接続可能なターミナルのみ準備
 
-
+----
 
 #### Python 2.7 & pip インストール
 
@@ -54,13 +41,15 @@ which pip ;
 
 ##### Mac の場合
 
-* Homebrew 利用の場合
+###### Homebrew 利用の場合
+
 ```
 # 下記のコマンドで python2.7 & pip の両方がインストールされる。
 brew install python ;
 ```
 
-* MacPorts 利用の場合
+###### MacPorts 利用の場合
+
 ```
 sudo port -v install python27 ;
 sudo port -v install py27-setuptools ;
@@ -68,25 +57,23 @@ sudo port -v install py27-setuptools ;
 sudo easy_install pip ;
 ```
 
-
-
 ##### Linux の場合
 
-* apt-get 利用の場合 (Debian / Ubuntu / etc.)
+###### apt-get 利用の場合 (Debian / Ubuntu / etc.)
+
 ```
 sudo apt-get install -y python-dev ;
 sudo apt-get install -y python-pip ;
 sudo apt-get install -y python-setuptools ;
 ```
 
-* yum (Yellowdog Updater Modified) 利用の場合 (Fedora / etc.)
+###### yum (Yellowdog Updater Modified) 利用の場合 (Fedora / etc.)
+
 ```
 # 下記のコマンドで python2.7 & pip の両方がインストールされる。
 sudo yum install -y python27 ;
 sudo yum install -y python-pip ;
 ```
-
-
 
 ----
 
@@ -96,8 +83,6 @@ sudo yum install -y python-pip ;
 
 https://github.com/
 
-
-
 ##### AWS
 
 http://aws.amazon.com/
@@ -106,9 +91,6 @@ http://aws.amazon.com/
 依頼を頂ければ一時的にアカウント作成を行います。
 
 * クレジットカード情報登録はするが、今回の内容は無料枠に収まるレベルの為、支払いの請求は無い予定です。
-
-
-
 
 ----
 
