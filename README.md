@@ -56,9 +56,7 @@ brew install python ;
 ```
 sudo port -v install python27 ;
 sudo port -v install py27-setuptools ;
-
 # 上記のコマンドだけで pip コマンドがインストールされている？されていない場合は下記を実行する。
-
 sudo easy_install pip ;
 ```
 
