@@ -1,0 +1,17 @@
+debug: true
+
+admins:
+# - 
+#   name:   ''
+#   email:  ''
+
+db:
+  # Master / Active
+  default:
+  # Standby (ReadOnly)
+  standby:
+  # Backup  (ReadOnly / Report / Analysis)
+  backup:
+  # Slave   (ReadOnly)
+  slave:
+
