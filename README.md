@@ -145,6 +145,7 @@ cd work.AWSEBPD ;
 ```
 
 * ディレクトリの中身
+
 ```
 .
 ├── .gitignore
