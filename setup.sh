@@ -1,8 +1,6 @@
 #! /bin/bash
 
-APT_GET=`which apt-get ;`
-
-if [ ! $PIP ]; then
+if [ ! `which apt-get ;` ]; then
   echo "NG : not exists apt-get command."
   exit 1
 fi
