@@ -15,11 +15,27 @@ AWS Elastic Beanstalk を Python (Django) で動かしてみるワークショ�
 
 
 
+
+
+----
+
+### 事前確認
+
+* AWS アカウントを持っていない かつ 作らない人は？
+
+* windows を使っている人は ssh client は何を使用しているか？
+
+* その ssh client で identity file を使用した ssh 方法は？
+
+
+
 ----
 
 ### 事前準備
 
-----
+#### ssh を利用できる環境
+
+* 各自、普段使用している ssh client で OK
 
 #### 各種アカウント作成
 
@@ -38,109 +54,6 @@ http://aws.amazon.com/
 
 * クレジットカード情報登録はするが、今回の内容は無料枠に収まるレベルの為、支払いの請求は無い予定です。
 
-----
-
-
-
-
-
-
-
-
-削除 : ここから
-
-
-#### sudo 権限のある環境 (Mac / Linux)
-
-* 無い場合は報告して頂ければ EC2 の環境を用意するので ssh 接続可能なターミナルのみ準備
-
-----
-
-#### git コマンドをインストール
-
-#### mysql (mysql-client) コマンドをインストール
-
-#### patch コマンドをインストール
-
-#### GNU sed コマンドをインストール
-
-##### Mac の場合
-
-* Mac にプリインストールされている sed は BSD sed の為、
-
-###### Homebrew 利用の場合
-
-```
-brew install gnu-sed ;
-alias sed='gsed' ;
-```
-
-###### MacPorts 利用の場合
-
-```
-sudo port install gsed ;
-alias sed='gsed' ;
-```
-
-
-
-#### Python 2.7 / pip インストール
-
-* 既にインストール済みであれば作業不要
-
-```
-which python2.7 ;
-
-which pip ;
-
-which mysql ;
-
-```
-
-* 各自、使用しているパッケージマネージャを利用してインストールする。
-
-##### Mac の場合
-
-###### Homebrew 利用の場合
-
-```
-# 下記のコマンドで python2.7 & pip の両方がインストールされる。
-brew install python ;
-
-brew install mysql ;
-```
-
-###### MacPorts 利用の場合
-
-```
-sudo port -v install python27 ;
-sudo port -v install py27-setuptools ;
-# 上記のコマンドだけで pip コマンドがインストールされている？されていない場合は下記を実行する。
-sudo easy_install pip ;
-```
-
-##### Linux の場合
-
-###### apt-get 利用の場合 (Debian / Ubuntu / etc.)
-
-```
-sudo apt-get install -y python-dev ;
-sudo apt-get install -y python-pip ;
-sudo apt-get install -y python-setuptools ;
-sudo apt-get install -y mysql-server ;
-sudo apt-get install -y libmysqlclient-dev ;
-sudo apt-get install -y libmysqlclient-dev ;
-```
-
-###### yum (Yellowdog Updater Modified) 利用の場合 (Fedora / etc.)
-
-```
-# 下記のコマンドで python2.7 & pip の両方がインストールされる。
-sudo yum install -y python27 ;
-sudo yum install -y python-pip ;
-```
-
-----
 
 
 ----
@@ -162,9 +75,13 @@ https://console.aws.amazon.com/ec2/v2/home?region=ap-northeast-1#Instances:
 * 'Next: Add Storagels' を click
 * 'Next: Tag Instance' を click
 * 'Next: Configure Security Group' を click
+* 次の手順に進み 'Security Group' を設定
 
-'Step 6: Configure Security Group'
-'Add Rule'
+
+
+###### Security Group の設定
+
+* 'Step 6: Configure Security Group' にて下記のように設定
 
 Protocol        | Type  | Port Range (Code) | Source
 ----------------|-------|-------------------|--------
@@ -172,35 +89,42 @@ SSH             | TCP   | 22                | My IP
 Custom TCP Rule | TCP   | 8000-8200         | My IP
 Custom UDP Rule | TCP   | 8000-8200         | My IP
 
-'Review and Launch' を click
+* 'Add Rule' を click し設定を追加
 
-'Launch' を click
+* 上記のように設定が完了したら 'Review and Launch' を click
+
+* 'Launch' を click
+* 'Create a new key pair'
+* 'Key pair name' を適当に入力
+* 'Download Key Pair' を click し private key file (identity file) をダウンロードし各自のローカルに保存して管理
+* 'Launch Instances' を click
+* 'View Instances' を click
+* 'Statusn Checks' が '... checks passed' になれば OK
 
 
-'Step 6: Configure Security Group'
 
-'Create a new key pair'
-
-'Key pair name' を各自適当に入力
-
-'Download Key Pair' を click し private key file () をダウンロードし各自のローカルに保存して管理
-
-'Launch Instances' を click
-
-'View Instances' を click
-
-'Statusn Checks' が '... checks passed' になれば OK
+###### Mac / Linux の場合
 
 ```
-chmod 400 <private key file ()>
+chmod 400 <private key file (identity file)>
 ```
 
 ```
-ssh -i <private key file ()> ubuntu@<Public DNS> ;
+ssh -i <private key file (identity file)> ubuntu@<Public DNS> ;
 ```
 
+
+
+###### Windows の場合
+
+* @TODO : あとで書く
+
+
+
+----
 
 * git をインストール
+
 ```
 sudo apt-get install -y git ;
 ```
@@ -213,12 +137,11 @@ git clone https://github.com/ukyooo/work.AWS_Elastic_Beanstalk.Python.Django.git
 cd app ;
 ```
 
+* 必要なパッケージをインストールなど
 
 ```
-bash setup.sh ;
+./setup.sh ;
 ```
-
-
 
 * ディレクトリの中身
 
@@ -261,28 +184,21 @@ bash setup.sh ;
 
 ```
 
-* 必要なツールを tools 配下にインストール
-```
-sh install_tools.sh ;
-```
-
-* eb コマンド設定
-```
-PWD=`pwd` ; PYTHON27=`which python2.7` ; alias eb="$PYTHON27 $PWD/tools/AWS-ElasticBeanstalk-CLI-2.5.1/eb/linux/python2.7/eb" ;
-```
-
-
 
 
 
 
 * シークレット情報管理 yaml ファイル作成
+
 ```
 cp settings/secret.yaml.template settings/secret.yaml ;
 ```
+
 【注意】
 今回、シークレット情報を yaml ファイルで管理して読み込んで使う方法を取りますが、
 シークレット情報を何らかの手段で秘匿する方法については触れません。
+
+
 
 ----
 
@@ -310,19 +226,46 @@ aws:
 
 #### AWS Elastic Beanstalk 設定
 
+https://console.aws.amazon.com/elasticbeanstalk
+
+* 'Configuration' / 'Data Layer' / 'create a new RDS database'
+* 'Allocated Storage' : 5
+* 'Master Username' / 'Master Password' を適当に設定
+
+
+
+* 作業環境で下記を実行
+
+
+
+* eb コマンド設定
+
+```
+PWD=`pwd` ; PYTHON27=`which python2.7` ; alias eb="$PYTHON27 $PWD/tools/AWS-ElasticBeanstalk-CLI-2.5.1/eb/linux/python2.7/eb" ;
+```
+
+
+
+* eb init 実行
+
 ```
 eb init ;
 ```
+
 ```
 To get your AWS Access Key ID and Secret Access Key,
   visit "https://aws-portal.amazon.com/gp/aws/securityCredentials".
 ```
+
 * AWS Access Key ID / AWS Secret Access Key を入力
+
 ```
 Enter your AWS Access Key ID: <AWS Access Key ID>           # <-
 Enter your AWS Secret Access Key: <AWS Secret Access Key>   # <-
 ```
+
 * region 選択
+
 ```
 Select an AWS Elastic Beanstalk service region.
 Available service regions are:
@@ -336,15 +279,21 @@ Available service regions are:
 8) South America (Sao Paulo)
 Select (1 to 8): 6 # <- 6) Asia Pacific (Tokyo)
 ```
+
 * アプリケーション名を入力
+
 ```
 Enter an AWS Elastic Beanstalk application name: <AWS Elastic Beanstalk Application Name> # <-
 ```
+
 * 環境名を入力 (例 : production / staging / development など)
+
 ```
 Enter an AWS Elastic Beanstalk environment name: <AWS Elastic Beanstalk Environment Name> # <-
 ```
+
 * solution stack 選択
+
 ```
 Select a solution stack.
 Available solution stacks are:
@@ -368,6 +317,7 @@ Available solution stacks are:
 18) 64bit Amazon Linux running Ruby 1.9.3
 Select (1 to 18): 14 # <- 14) 64bit Amazon Linux running Python
 ```
+
 ```
 Select an environment type.
 Available environment types are:
@@ -375,9 +325,11 @@ Available environment types are:
 2) SingleInstance
 Select (1 to 2): 1 # <- 1) LoadBalanced
 ```
+
 ```
 Create an RDS DB Instance? [y/n]: y # <- Yes
 ```
+
 ```
 Create an RDS BD Instance from:
 1) [No snapshot]
@@ -386,33 +338,42 @@ Create an RDS BD Instance from:
 4) [Other snapshot]
 Select (1 to 4): 1 # <- 1) [No snapshot]
 ```
+
 * settings/secret.yaml の databases.common.default.PASSWORD に記録
+
 ```
 Enter an RDS DB master password: <RDS DB Pssword> # <-
 Retype password to confirm: <RDS DB Pssword>      # <-
 ```
+
 ```
 If you terminate your environment, your RDS DB Instance will be deleted and you will lose your data.
 Create snapshot? [y/n]: y # <- Yes
 ```
+
 ```
 Attach an instance profile (current value is "aws-elasticbeanstalk-ec2-role"):
 You IAM user does not have sufficient permission.
 User: arn:aws:iam::xxxxxxxxxxxx:user/username is not authorized to perform: iam:ListInstanceProfiles on resource: arn:aws:iam::xxxxxxxxxxxx:instance-profile/
 Do you want to proceed without attaching an instance profile? [y/n]: y # <- Yes
 ```
+
 ```
 Updated AWS Credential file at "$HOME/.elasticbeanstalk/aws_credential_file".
 ```
+
+
 
 ----
 
 #### AWS Elastic Beanstalk 起動
 
 * AWS Elastic Beanstalk 起動 (15分程度)
+
 ```
 eb start ;
 ```
+
 ```
 Starting application "(AWS Elastic Beanstalk Application Name)".
 Would you like to deploy the latest Git commit to your environment? [y/n]: n # <- No : まだデプロイしない為
@@ -433,6 +394,8 @@ YYYY-MM-DD hh:mm:ss INFO  Created CloudWatch alarm named: <xxxx>
 YYYY-MM-DD hh:mm:ss INFO  Created CloudWatch alarm named: <xxxx>
 
 ```
+
+
 
 ----
 
@@ -766,4 +729,32 @@ deactivate ;
 ```
 
 ----
+
+### おまけ
+
+#### GNU sed コマンドをインストール
+
+今回、 Mac で sed を使おうと思ったら思い通りに動かず、
+調べてみたら Mac にプリインストールされている sed は BSD sed の為だったので、
+GNU sed をインストールする方法をメモ
+
+##### Mac の場合
+
+###### Homebrew 利用の場合
+
+```
+brew install gnu-sed ;
+alias sed='gsed' ;
+```
+
+###### MacPorts 利用の場合
+
+```
+sudo port install gsed ;
+alias sed='gsed' ;
+```
+
+----
+
+
 
