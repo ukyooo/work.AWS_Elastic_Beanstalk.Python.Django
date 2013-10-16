@@ -21,6 +21,35 @@ AWS Elastic Beanstalk を Python (Django) で動かしてみるワークショ�
 
 ----
 
+#### 各種アカウント作成
+
+##### GitHub
+
+https://github.com/
+
+* 本リポジトリを clone する為に使用
+
+##### AWS
+
+http://aws.amazon.com/
+
+* ただし、住所情報入力 / クレジットカード情報登録 / 電話確認 が有り、アカウント取得コストが高い為、
+依頼を頂ければ一時的にアカウント作成を行います。
+
+* クレジットカード情報登録はするが、今回の内容は無料枠に収まるレベルの為、支払いの請求は無い予定です。
+
+----
+
+
+
+
+
+
+
+
+削除 : ここから
+
+
 #### sudo 権限のある環境 (Mac / Linux)
 
 * 無い場合は報告して頂ければ EC2 の環境を用意するので ssh 接続可能なターミナルのみ準備
@@ -113,20 +142,6 @@ sudo yum install -y python-pip ;
 
 ----
 
-#### 各種アカウント作成
-
-##### GitHub
-
-https://github.com/
-
-##### AWS
-
-http://aws.amazon.com/
-
-* ただし、住所情報入力 / クレジットカード情報登録 / 電話確認 が有り、アカウント取得コストが高い為、
-依頼を頂ければ一時的にアカウント作成を行います。
-
-* クレジットカード情報登録はするが、今回の内容は無料枠に収まるレベルの為、支払いの請求は無い予定です。
 
 ----
 
@@ -136,13 +151,74 @@ http://aws.amazon.com/
 
 #### 環境構築
 
+##### 作業環境を EC2 で構築
+
+https://console.aws.amazon.com/ec2/
+https://console.aws.amazon.com/ec2/v2/home?region=ap-northeast-1#Instances:
+
+* 'Launch Instance' を click
+* 'Ubuntu Server 13.04 - ami-6b26ab6a (64-bit)' の 'Select' を click
+* 'Next: Configure Instance Details' を click
+* 'Next: Add Storagels' を click
+* 'Next: Tag Instance' を click
+* 'Next: Configure Security Group' を click
+
+'Step 6: Configure Security Group'
+'Add Rule'
+
+Protocol        | Type  | Port Range (Code) | Source
+----------------|-------|-------------------|--------
+SSH             | TCP   | 22                | My IP
+Custom TCP Rule | TCP   | 8000-8200         | My IP
+Custom UDP Rule | TCP   | 8000-8200         | My IP
+
+'Review and Launch' を click
+
+'Launch' を click
+
+
+'Step 6: Configure Security Group'
+
+'Create a new key pair'
+
+'Key pair name' を各自適当に入力
+
+'Download Key Pair' を click し private key file () をダウンロードし各自のローカルに保存して管理
+
+'Launch Instances' を click
+
+'View Instances' を click
+
+'Statusn Checks' が '... checks passed' になれば OK
+
+```
+chmod 400 <private key file ()>
+```
+
+```
+ssh -i <private key file ()> ubuntu@<Public DNS> ;
+```
+
+
+* git をインストール
+```
+sudo apt-get install -y git ;
+```
+
 * git リポジトリを clone
 
 ```
-git clone https://github.com/ukyooo/work.AWS_Elastic_Beanstalk.Python.Django.git work.AWSEBPD ;
+git clone https://github.com/ukyooo/work.AWS_Elastic_Beanstalk.Python.Django.git app ;
 
-cd work.AWSEBPD ;
+cd app ;
 ```
+
+
+```
+bash setup.sh ;
+```
+
+
 
 * ディレクトリの中身
 
@@ -162,6 +238,8 @@ cd work.AWSEBPD ;
 ├── fabfile.py
 
 ├── install_tools.sh
+
+├── setup.sh
 
 ├── project_sample
 │   ├── ...
@@ -183,9 +261,8 @@ cd work.AWSEBPD ;
 
 ```
 
-* 必要なツールをインストール
+* 必要なツールを tools 配下にインストール
 ```
-# virtualenv や AWS の CLI tool などをインストール
 sh install_tools.sh ;
 ```
 
@@ -193,6 +270,11 @@ sh install_tools.sh ;
 ```
 PWD=`pwd` ; PYTHON27=`which python2.7` ; alias eb="$PYTHON27 $PWD/tools/AWS-ElasticBeanstalk-CLI-2.5.1/eb/linux/python2.7/eb" ;
 ```
+
+
+
+
+
 
 * シークレット情報管理 yaml ファイル作成
 ```
