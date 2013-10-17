@@ -20,11 +20,16 @@ list_install=(
   "libmysqlclient-dev"
   "sed"
   "unzip"
+  "tree"
+  "ruby-full"
 )
 for i in "${list_install[@]}"
 do
   sudo apt-get install -y $i ;
 done
+
+# mysql-server をインストール
+# sudo apt-get install -y mysql-server ;
 
 # 必要なツールを tools 配下にインストール
 sh install_tools.sh ;
