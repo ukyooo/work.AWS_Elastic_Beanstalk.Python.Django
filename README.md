@@ -189,7 +189,7 @@ cd app ;
 * 再起動
 
 ```
-sudo apt-get install -y mysql-server ;
+sudo shutdown -r now ;
 ```
 
 * ディレクトリの中身を確認
