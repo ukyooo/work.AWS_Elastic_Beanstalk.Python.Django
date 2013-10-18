@@ -11,30 +11,14 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
-DATABASES = {
+DATABASES = { }
 
-#   'default': {
-#       'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-#       'NAME': 'ebdb',                      # Or path to database file if using sqlite3.
-#       'USER': 'ebroot',                      # Not used with sqlite3.
-#       'PASSWORD': 'xxxxxxxx',                  # Not used with sqlite3.
-#       'HOST': 'aaoc80l363llrt.cvgqwnauxgoj.ap-northeast-1.rds.amazonaws.com',                      # Set to empty string for localhost. Not used with sqlite3.
-#       'PORT': 3306,                      # Set to empty string for default. Not used with sqlite3.
-#   }
+# DATABASES['default'] = { 'ENGINE': 'django.db.backends.mysql', 'NAME': 'hoge', 'USER': 'root', 'HOST': 'localhost', 'PASSWORD': 'xxxxxxxx', 'PORT': 3306, }
+DATABASES['default'] = { 'ENGINE': 'django.db.backends.mysql', 'NAME': 'ebdb', 'USER': 'ebroot', 'HOST': 'aaoc80l363llrt.cvgqwnauxgoj.ap-northeast-1.rds.amazonaws.com', 'PASSWORD': 'xxxxxxxx', 'PORT': 3306, }
 
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-#       'NAME': 'ebdb',
-        'NAME': 'hoge',
-#       'USER': 'root',
-        'USER': 'ebroot',
-#       'HOST': 'localhost',
-        'HOST': 'aaoc80l363llrt.cvgqwnauxgoj.ap-northeast-1.rds.amazonaws.com',
-        'PASSWORD': 'xxxxxxxx',
-        'PORT': 3306,
-    }
 
-}
+
+
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
