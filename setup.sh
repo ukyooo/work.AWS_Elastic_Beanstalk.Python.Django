@@ -20,19 +20,20 @@ list_install=(
   "libmysqlclient-dev"
   "sed"
   "unzip"
+  "tree"
+  "ruby-full"
 )
 for i in "${list_install[@]}"
 do
   sudo apt-get install -y $i ;
 done
 
+# mysql-server をインストール
+# sudo apt-get install -y mysql-server ;
+# パスワード設定が必要なので手動でインストールする。
+
 # 必要なツールを tools 配下にインストール
 sh install_tools.sh ;
-
-# eb コマンド設定
-PWD=`pwd` ;
-PYTHON27=`which python2.7` ;
-alias eb="$PYTHON27 $PWD/tools/AWS-ElasticBeanstalk-CLI-2.5.1/eb/linux/python2.7/eb" ;
 
 echo "Successfully setup" ;
 

@@ -50,6 +50,11 @@ if [ ! -d ec2-api-tools-* ]; then
   rm ec2-api-tools.zip ;
 fi
 
+# # Jenkins をインストール
+# if [ ! -d jenkins.war ]; then
+#   wget http://mirrors.jenkins-ci.org/war/latest/jenkins.war ;
+# fi
+
 cd .. ;
 
 echo "Successfully installed tools" ;

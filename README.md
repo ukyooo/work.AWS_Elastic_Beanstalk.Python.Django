@@ -62,46 +62,83 @@ http://aws.amazon.com/
 
 * そもそも AWS Elastic Beanstalk とは何かの説明の前に下記の作業を進めて頂きます。
 
-#### 環境構築
 
-##### 作業環境を EC2 で構築
+
+#### 環境作成
+
+##### 作業環境用 EC2 のインスタンスを立ち上げ
 
 https://console.aws.amazon.com/ec2/
 https://console.aws.amazon.com/ec2/v2/home?region=ap-northeast-1#Instances:
 
+* region は Asia Pacific (Tokyo) を利用
+
 * 'Launch Instance' を click
+
 * 'Ubuntu Server 13.04 - ami-6b26ab6a (64-bit)' の 'Select' を click
+
 * 'Next: Configure Instance Details' を click
+
 * 'Next: Add Storagels' を click
+
 * 'Next: Tag Instance' を click
+
+
+
+###### 'Tag Instance' の設定
+
+* 今回、こちらから AWS のアカウントを貸し与えた方々は以下のイメージで設定してください。個人の AWS アカウントの方は適当で問題ありません。
+
+Key   | Value
+------|------
+Name  | work.(UserName)
+
 * 'Next: Configure Security Group' を click
-* 次の手順に進み 'Security Group' を設定
 
 
 
-###### Security Group の設定
+###### 'Security Group' の設定
 
-* 'Step 6: Configure Security Group' にて下記のように設定
+* 下記のように設定
 
 Protocol        | Type  | Port Range (Code) | Source
 ----------------|-------|-------------------|--------
 SSH             | TCP   | 22                | My IP
 Custom TCP Rule | TCP   | 8000-8200         | My IP
 Custom UDP Rule | TCP   | 8000-8200         | My IP
+HTTP            | TCP   | 80                | Anywhere
 
 * 'Add Rule' を click し設定を追加
 
 * 上記のように設定が完了したら 'Review and Launch' を click
 
 * 'Launch' を click
-* 'Create a new key pair'
+
+
+
+###### 'Select an existing key pair or create a new key pair'
+
+* 'Create a new key pair' を選択
+
 * 'Key pair name' を適当に入力
+
 * 'Download Key Pair' を click し private key file (identity file) をダウンロードし各自のローカルに保存して管理
+
 * 'Launch Instances' を click
+
 * 'View Instances' を click
+
 * 'Statusn Checks' が '... checks passed' になれば OK
 
 
+
+* MEMO : 起動した EC2 インスタンスの 'Public DNS' をメモしておく。
+
+
+
+----
+
+##### 作業環境用 EC2 に ssh ログイン
 
 ###### Mac / Linux の場合
 
@@ -123,6 +160,8 @@ ssh -i <private key file (identity file)> ubuntu@<Public DNS> ;
 
 ----
 
+#### 作業環境構築
+
 * git をインストール
 
 ```
@@ -133,7 +172,11 @@ sudo apt-get install -y git ;
 
 ```
 git clone https://github.com/ukyooo/work.AWS_Elastic_Beanstalk.Python.Django.git app ;
+```
 
+* リポジトリを落としたディレクトリに移動
+
+```
 cd app ;
 ```
 
@@ -143,50 +186,21 @@ cd app ;
 ./setup.sh ;
 ```
 
-* ディレクトリの中身
+* 再起動
 
 ```
-.
-├── .gitignore
-
-├── .ebextensions
-│   └── .config
-
-├── .elasticbeanstalk
-│   ├── ...
-│   └── ...
-
-├── README.md
-
-├── fabfile.py
-
-├── install_tools.sh
-
-├── setup.sh
-
-├── project_sample
-│   ├── ...
-│   └── ...
-
-├── requirements.txt
-
-├── scripts
-│   ├── ...
-│   └── ...
-
-├── settings
-│   ├── config.yaml
-│   └── secret.yaml.template
-
-├── statics
-
-└── templates
-
+sudo apt-get install -y mysql-server ;
 ```
 
+* ディレクトリの中身を確認
 
+* mysql-server をインストール
 
+```
+sudo apt-get install -y mysql-server ;
+```
 
+パスワードは適当に設定し忘れないようにメモをしておく。
 
 * シークレット情報管理 yaml ファイル作成
 
@@ -202,11 +216,17 @@ cp settings/secret.yaml.template settings/secret.yaml ;
 
 ----
 
-#### AWS User 作成
+#### AWS IAM 設定
 
 * AWS Identity and Access Management (IAM) で User (Access Key ID / Secret Access Key) 作成
 
 https://console.aws.amazon.com/iam/
+
+
+
+----
+
+##### AWS User 作成
 
 1. 'Users' に遷移して 'Create New Users' をクリックする。
 2. 適当な UserName を入力し 'Generate an access key for each User' にチェックを入た状態で 'Create' をクリックする。
@@ -222,29 +242,48 @@ aws:
 4. 作成した UserName を選択し 'Permissions' のタブを開き 'Attach User Policy' をクリックする。
 5. 'Select Policy Template' から 'AWS Elastic Beanstalk Full Access' を 'Select' して 'Apply Policy' する。
 
+
+
 ----
 
-#### AWS Elastic Beanstalk 設定
+##### AWS Role 作成
+
+1. 'Roles' に遷移して 'Create New Role' をクリックする。
+2. 適当な RoleName を入力し 'Continue' をクリックする。
+3. 'Select Role Type' -> 'AWS Service Roles' -> 'Amazon EC2' を 'Select' する。
+4. 'Set Permissions' -> 'Select Policy Template' -> 'Amazon S3 Full Access' を 'Select' する。
+5. 'Continue' をクリックする。
+6. 'Create Role' をクリックする。
+
+* これを利用することに依り Beanstalk の EC2 インスタンスのログ (access / error) を定期的に S3 にアップロードする権限が与えられる。
+
+
+
+----
+
+#### AWS Elastic Beanstalk 起動
 
 https://console.aws.amazon.com/elasticbeanstalk
 
-* 'Configuration' / 'Data Layer' / 'create a new RDS database'
-* 'Allocated Storage' : 5
-* 'Master Username' / 'Master Password' を適当に設定
 
 
+##### Web 実行
+
+* 今回、やりません。
+
+
+
+----
+
+##### CLI 実行
 
 * 作業環境で下記を実行
-
-
 
 * eb コマンド設定
 
 ```
 PWD=`pwd` ; PYTHON27=`which python2.7` ; alias eb="$PYTHON27 $PWD/tools/AWS-ElasticBeanstalk-CLI-2.5.1/eb/linux/python2.7/eb" ;
 ```
-
-
 
 * eb init 実行
 
@@ -285,11 +324,17 @@ Select (1 to 8): 6 # <- 6) Asia Pacific (Tokyo)
 ```
 Enter an AWS Elastic Beanstalk application name: <AWS Elastic Beanstalk Application Name> # <-
 ```
+```
+Enter an AWS Elastic Beanstalk application name: app-<UserName> # <- 今回
+```
 
 * 環境名を入力 (例 : production / staging / development など)
 
 ```
 Enter an AWS Elastic Beanstalk environment name: <AWS Elastic Beanstalk Environment Name> # <-
+```
+```
+Enter an AWS Elastic Beanstalk environment name: app-<UserName>-env # <- 今回
 ```
 
 * solution stack 選択
@@ -362,6 +407,8 @@ Do you want to proceed without attaching an instance profile? [y/n]: y # <- Yes
 Updated AWS Credential file at "$HOME/.elasticbeanstalk/aws_credential_file".
 ```
 
+* 上記ファイルに AWS AccessKey / AWS SecretKey / RDS Master Password が保存される。
+
 
 
 ----
@@ -404,10 +451,12 @@ YYYY-MM-DD hh:mm:ss INFO  Created CloudWatch alarm named: <xxxx>
 http://aws.amazon.com/jp/elasticbeanstalk/
 
 EC2 (Amazon Elastic Cloud Compute)
+ELB (Elastic Load Balancing)
+autoscaling
+cloudwatch
+cloudformation
 S3 (Amazon Simple Storage Service)
 SNS (Amazon Simple Notification Service)
-ELB (Elastic Load Balancing)
-Auto Scaling 
 
 
 
@@ -416,9 +465,10 @@ Auto Scaling
 #### Python / Django
 
 * Python 2.7.x or 3.0.x
+
 * Django 1.3.3 or 1.4.1
 
-* 今回 : Python 2.7.x + Django 1.4.1
+* 今回は Python 2.7.x + Django 1.4.1 の組み合わせを使用
 
 
 
@@ -582,11 +632,107 @@ hoge/
 └── wsgi.py
 ```
 
+
+```
+git add manage.py hoge ;
+git commit -m "update" ;
+```
+
+```
+# -*- coding: utf-8 -*-
+```
+
+
+```
+ifconfig eth0 ;
+```
+
+```
+eth0      Link encap:Ethernet  HWaddr XX:XX:XX:XX:XX:XX
+          inet addr:172.XX.XX.X  Bcast:172.XX.XX.255  Mask:255.255.240.0
+          ^^^^^^^^^^^^^^^^^^^^^
+
+          ...
+
+```
+
+```
+python manage.py runserver <eth0 inet addr>:8000
+```
+
+
+
+
+
+```
+$ git diff ;
+```
+```
+diff --git a/hoge/settings.py b/hoge/settings.py
+index ef4065f..4fa3544 100644
+--- a/hoge/settings.py
++++ b/hoge/settings.py
+@@ -1,3 +1,5 @@
++# -*- coding: utf-8 -*-
++
+ # Django settings for hoge project.
+
+ DEBUG = True
+@@ -116,9 +118,9 @@ INSTALLED_APPS = (
+     'django.contrib.messages',
+     'django.contrib.staticfiles',
+     # Uncomment the next line to enable the admin:
+-    # 'django.contrib.admin',
++    'django.contrib.admin',
+     # Uncomment the next line to enable admin documentation:
+-    # 'django.contrib.admindocs',
++    'django.contrib.admindocs',
+ )
+
+ # A sample logging configuration. The only tangible logging
+diff --git a/hoge/urls.py b/hoge/urls.py
+index 1bee51c..e64720e 100644
+--- a/hoge/urls.py
++++ b/hoge/urls.py
+@@ -1,8 +1,11 @@
++# -*- coding: utf-8 -*-
++
+ from django.conf.urls import patterns, include, url
+
+ # Uncomment the next two lines to enable the admin:
+-# from django.contrib import admin
+-# admin.autodiscover()
++from django.contrib import admin
++from django.contrib import admindocs
++admin.autodiscover()
+
+ urlpatterns = patterns('',
+     # Examples:
+@@ -10,8 +13,8 @@ urlpatterns = patterns('',
+     # url(r'^hoge/', include('hoge.foo.urls')),
+
+     # Uncomment the admin/doc line below to enable admin documentation:
+-    # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
++    url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
+
+     # Uncomment the next line to enable the admin:
+-    # url(r'^admin/', include(admin.site.urls)),
++    url(r'^admin/', include(admin.site.urls)),
+ )
+```
+
+
+
+
 ----
 
 ##### Django settings 編集
 
 https://docs.djangoproject.com/en/1.4/topics/settings/
+
+https://console.aws.amazon.com/rds/
+
+
 
 * settings/secret.yaml を読み込むように修整
 ```
@@ -628,12 +774,16 @@ patch -s ... ... ;
 +SECRET_KEY = SETTINGS_SECRET['django']['secret_key']
 ```
 
+
+
 ----
 
 ##### AWS Elastic Beanstalk 起動状況確認
 
 https://console.aws.amazon.com/elasticbeanstalk/
 https://console.aws.amazon.com/elasticbeanstalk/?region=ap-northeast-1
+
+
 
 ----
 
@@ -653,13 +803,36 @@ https://console.aws.amazon.com/rds/
       'PASSWORD': '<RDS Password>'
 ```
 
+
+
+* debug 用 DB を local に作成
+
+```
+mysql -h localhost -u root -p"xxxxxxxx" -e "CREATE DATABASE hoge ;" ;
+```
+
+
+
 ```
 # django-admin.py dbshell ;
 python ./manage.py dbshell ;
+```
+```
+mysql> SHOW TABLES ;
+```
 
+```
 # django-admin.py syncdb --noinput ;
 python ./manage.py syncdb --noinput ;
 ```
+
+# django-admin.py dbshell ;
+python ./manage.py dbshell ;
+```
+```
+mysql> SHOW TABLES ;
+```
+
 
 
 
